@@ -1,0 +1,9 @@
+{
+  "theme": "sunset",
+  "themes": {
+    "sunset": { "base": "dark", "accent": "#ff8800", "error": "bright-red", "selection": "#334455", "selection_text": "white" }
+  },
+  "keys": { "quit": "ctrl+q" },
+  "db": { "url": "sqlite://app.db", "write": false },
+  "dashboard": { "url": "http://localhost:8000", "log": "storage/app.log" }
+}

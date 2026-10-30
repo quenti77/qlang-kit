@@ -13,6 +13,7 @@ import "../tui/layout.q" as l
 import "../tui/list.q" as li
 import "../tui/style.q" as st
 import "../tui/text.q" as tx
+import "../tui/theme.q" as th
 import "rules.q" as rules
 
 --" What every prompt can do. --"
@@ -23,7 +24,7 @@ trait Prompt
 end
 
 fun red() -> st.Style
-  st.Style.create().fg(st.Color.ansi(1))
+  th.error()
 end
 
 fun dim() -> st.Style
@@ -108,7 +109,7 @@ impl Prompt for ConfirmPrompt
   end
 
   public fun draw(self, screen: b.Buffer, area: l.Rect) -> array<int>
-    let chosen = st.Style.create().reverse().bold()
+    let chosen = th.selected().bold()
     screen.put(area.x, area.y, "[ Yes ]", if self.yes then chosen else st.Style.create() end)
     screen.put(area.x + 9, area.y, "[ No ]", if self.yes then st.Style.create() else chosen end)
     []

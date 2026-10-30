@@ -33,6 +33,7 @@ import "../tui/layout.q" as l
 import "../tui/list.q" as li
 import "../tui/style.q" as st
 import "../tui/text.q" as tx
+import "../tui/theme.q" as th
 
 --" The state of the wizard. --"
 struct Wizard
@@ -129,11 +130,11 @@ impl ap.Program for Wizard
       return
     end
     let typing = self.focus.has("name")
+    if not typing and (k.quit_pressed(ev) or (ev.kind == "key" and ev.key == "Esc")) then
+      ctx.quit()
+      return
+    end
     if ev.kind == "key" and not typing and not ev.ctrl and not ev.alt then
-      if ev.key == "q" or ev.key == "Esc" then
-        ctx.quit()
-        return
-      end
       if ev.key == "t" then
         self.with_test = not self.with_test
         replan(self)
@@ -195,7 +196,7 @@ impl ap.Program for Wizard
     let cols = rows[0].split_row([l.Size.fixed(32), l.Size.fill(1)], 0)
     let left = cols[0].split_column([l.Size.fill(1), l.Size.fixed(3), l.Size.fixed(5)], 0)
     let edge = fun(id: string) -> st.Style
-      if self.focus.has(id) then st.Style.create().fg(st.Color.ansi(6)).bold() else st.Style.create() end
+      if self.focus.has(id) then th.accent() else st.Style.create() end
     end
     self.kinds.render(screen, bk.Block.create().rounded().title("Kind").border_style(edge("kind")).render(screen, left[0]), self.focus.has("kind"))
     let name_box = bk.Block.create().rounded().title("Name").border_style(edge("name")).render(screen, left[1])
@@ -207,7 +208,7 @@ impl ap.Program for Wizard
     let right = cols[1].split_column([l.Size.fixed(6), l.Size.fill(1)], 0)
     let list_area = bk.Block.create().rounded().title("Files").border_style(edge("files")).render(screen, right[0])
     if self.problem != "" then
-      screen.put(list_area.x, list_area.y, tx.truncate(self.problem, list_area.w), st.Style.create().fg(st.Color.ansi(3)))
+      screen.put(list_area.x, list_area.y, tx.truncate(self.problem, list_area.w), th.warn())
     else
       self.paths.render(screen, list_area, self.focus.has("files"))
     end
@@ -227,7 +228,7 @@ impl ap.Program for Wizard
     let hints = [["tab", "next"], ["t r f", "options"], ["ctrl+s", "write"], ["q", "quit"]]
     hp.HelpBar.create(hints).render(screen, rows[1])
     if self.status != "" then
-      screen.put(area.right() - self.status.len() - 1, rows[1].y, self.status, st.Style.create().fg(st.Color.ansi(2)).bold())
+      screen.put(area.right() - self.status.len() - 1, rows[1].y, self.status, th.ok().bold())
     end
     if at.len() == 2 then
       return at

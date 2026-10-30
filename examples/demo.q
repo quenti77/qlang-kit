@@ -56,7 +56,7 @@ impl ap.Program for Demo
       end
       return
     end
-    if ev.kind == "key" and ev.key == "q" and self.focus.has("list") then
+    if k.quit_pressed(ev) and self.focus.has("list") then
       self.ask.reopen()
       self.shown = true
       return

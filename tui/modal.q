@@ -15,6 +15,7 @@ import "block.q" as bk
 import "buffer.q" as b
 import "layout.q" as l
 import "style.q" as st
+import "theme.q" as th
 import "text.q" as tx
 import "width.q" as w
 
@@ -108,7 +109,7 @@ impl Dialog
     let lines = tx.wrap(self.message, width)
     let height = lines.len() + 4
     let box = area.center(width + 4, height + 1)
-    let edge = if self.danger then st.Style.create().fg(st.Color.ansi(1)) else st.Style.create().fg(st.Color.ansi(6)) end
+    let edge = if self.danger then th.error() else th.accent() end
     let inside = bk.Block.create().rounded().title(self.heading).border_style(edge).background(st.Style.create()).render(screen, box)
     for i in 0..lines.len() do
       screen.put(inside.x + 1, inside.y + i, lines[i], st.Style.create())
@@ -116,7 +117,7 @@ impl Dialog
     let x = inside.x + (inside.w - inner_w) div 2
     for i in 0..self.buttons.len() do
       let text = "[ " + self.buttons[i] + " ]"
-      let style = if i == self.chosen then st.Style.create().reverse().bold() else st.Style.create() end
+      let style = if i == self.chosen then th.selected().bold() else st.Style.create() end
       screen.put(x, inside.y + inside.h - 1, text, style)
       x += w.text_width(text) + 2
     end

@@ -26,6 +26,7 @@ import "../tui/table.q" as tb
 import "../tui/tabs.q" as ts
 import "../tui/text.q" as tx
 import "../tui/textarea.q" as ta
+import "../tui/theme.q" as th
 import "catalog.q" as cat
 
 --" A table of text with the widths the content needs (at most 24), from column `first`. --"
@@ -204,11 +205,11 @@ impl ap.Program for Browser
       self.sql.handle(ev)
       return
     end
+    if k.quit_pressed(ev) then
+      ctx.quit()
+      return
+    end
     if ev.kind == "key" and not ev.ctrl and not ev.alt then
-      if ev.key == "q" then
-        ctx.quit()
-        return
-      end
       if ev.key == "r" then
         load_table(self)
         load_migrations(self)
@@ -258,7 +259,7 @@ impl ap.Program for Browser
     screen.put(rows[0].x + 1, rows[0].y, tx.truncate(self.url + "  ·  " + mode, rows[0].w - 2), st.Style.create().dim())
     let cols = rows[1].split_row([l.Size.fixed(26), l.Size.fill(1)], 0)
     let edge = fun(id: string) -> st.Style
-      if self.focus.has(id) then st.Style.create().fg(st.Color.ansi(6)).bold() else st.Style.create() end
+      if self.focus.has(id) then th.accent() else st.Style.create() end
     end
     self.tables.render(screen, bk.Block.create().rounded().title("Tables").border_style(edge("tables")).render(screen, cols[0]), self.focus.has("tables"))
     let right = cols[1].split_column([l.Size.fixed(1), l.Size.fill(1)], 0)
@@ -285,7 +286,7 @@ impl ap.Program for Browser
       self.migrations.render(screen, body, focused)
     end
     let status = if self.message != "" then "! " + self.message else "page {self.page}/{total_pages(self)} · {self.total} rows" end
-    screen.put(rows[2].x + 1, rows[2].y, tx.truncate(status, rows[2].w - 2), if self.message != "" then st.Style.create().fg(st.Color.ansi(1)) else st.Style.create().dim() end)
+    screen.put(rows[2].x + 1, rows[2].y, tx.truncate(status, rows[2].w - 2), if self.message != "" then th.error() else st.Style.create().dim() end)
     if cursor.len() == 2 then
       return cursor
     end

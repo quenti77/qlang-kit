@@ -19,6 +19,7 @@ import "buffer.q" as b
 import "layout.q" as l
 import "list.q" as li
 import "style.q" as st
+import "theme.q" as th
 import "text.q" as tx
 
 --" One line of the tree: its text, its depth, whether it has children, and whether it is open. --"
@@ -222,7 +223,7 @@ impl Tree
         indent += "  "
       end
       let chosen = r == self.selected
-      let style = if chosen and focused then st.Style.create().reverse() elseif chosen then st.Style.create().bold() else st.Style.create() end
+      let style = if chosen and focused then th.selected() elseif chosen then st.Style.create().bold() else st.Style.create() end
       screen.put(area.x, area.y + line, tx.fit(indent + mark + n.label, width, "left"), style)
     end
     if bar then

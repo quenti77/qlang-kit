@@ -13,6 +13,7 @@ tabs.active                                    -- 0, 1, 2
 import "buffer.q" as b
 import "layout.q" as l
 import "style.q" as st
+import "theme.q" as th
 import "text.q" as tx
 import "width.q" as w
 
@@ -97,7 +98,7 @@ impl Tabs
       if room <= 0 then
         break
       end
-      let style = if i == self.active then st.Style.create().reverse().bold() else st.Style.create().dim() end
+      let style = if i == self.active then th.selected().bold() else st.Style.create().dim() end
       screen.put(x, area.y, tx.truncate(self.label(i), room), style)
       x += w.text_width(self.label(i)) + 1
     end
