@@ -32,6 +32,10 @@ with its verdict, and for a failure the message and the source around the line (
 test, `w` watching, `f` only failures). It starts `qlang`, so it runs with `--allow-process` (the `bin/kit` script
 does that, and only for `test`). `bin/kit` dispatches the other commands too.
 
+`kit db --url sqlite://app.db` (or `DATABASE_URL`; also `postgres://` and `mysql://`) browses a database: the tables, the rows
+of a table a page at a time (`n`/`p`, `←` `→` scroll the columns), its structure, a SQL editor (`Ctrl+R` runs) and the migrations
+(applied, or pending when a file of `migrations/` is not in `schema_migrations`). It only reads unless started with `--write`.
+
 `dashboard` shows a running app: health, routes (from `/openapi.json`), requests per route with p50/p95 (from
 `/metrics`) and its JSON log (`qlang serve --log-format json`), with the `N+1?` warnings of `--dev`.
 
