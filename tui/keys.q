@@ -59,6 +59,15 @@ impl Chord
     self.spec
   end
 
+  --" Becomes the same key as `other`. --"
+  public fun assign(self, other: Chord)
+    self.key = other.key
+    self.ctrl = other.ctrl
+    self.alt = other.alt
+    self.shift = other.shift
+    self.spec = other.spec
+  end
+
   --" Whether the event is this key. Letters are compared without regard to case (Shift is what tells `g`
     from `G`); for the other single characters (`?`, `:`) Shift is not looked at, since keyboards differ. --"
   public fun matches(self, ev: Event) -> bool
@@ -196,4 +205,17 @@ impl FocusRing
   end
 end
 
-export Chord, Keymap, FocusRing
+-- the key that ends a program: one for all of them, changed in place
+let quit = Chord.parse("q")
+
+--" Makes `spec` (`"q"`, `"ctrl+q"`) the key that quits every screen of the tool. --"
+fun set_quit(spec: string)
+  quit.assign(Chord.parse(spec))
+end
+
+--" Whether the event is the quit key. --"
+fun quit_pressed(ev: Event) -> bool
+  quit.matches(ev)
+end
+
+export Chord, Keymap, FocusRing, set_quit, quit_pressed

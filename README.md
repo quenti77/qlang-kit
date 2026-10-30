@@ -36,6 +36,11 @@ does that, and only for `test`). `bin/kit` dispatches the other commands too.
 of a table a page at a time (`n`/`p`, `←` `→` scroll the columns), its structure, a SQL editor (`Ctrl+R` runs) and the migrations
 (applied, or pending when a file of `migrations/` is not in `schema_migrations`). It only reads unless started with `--write`.
 
+**Settings.** `kit.json` in the project and `~/.config/kit/kit.json` for you (the project wins, key by key): the theme
+(`dark`, `light`, `high-contrast`, `mono`, or one of your own built on them with your colours), the key that quits, and the
+defaults of `db` and `dashboard`. See `kit.example.json`. A mistake is reported where it is (`themes.sunset.accent: ...`)
+and an unknown setting is a mistake too. `kit config` shows what is in use.
+
 `dashboard` shows a running app: health, routes (from `/openapi.json`), requests per route with p50/p95 (from
 `/metrics`) and its JSON log (`qlang serve --log-format json`), with the `N+1?` warnings of `--dev`.
 

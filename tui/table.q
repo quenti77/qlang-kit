@@ -20,6 +20,7 @@ import "buffer.q" as b
 import "layout.q" as l
 import "list.q" as li
 import "style.q" as st
+import "theme.q" as th
 import "text.q" as tx
 
 --" A column: its title, its size and where its text sits. --"
@@ -201,7 +202,7 @@ impl Table
         break
       end
       let chosen = index == self.selected
-      let style = if chosen and focused then st.Style.create().reverse() elseif chosen then st.Style.create().bold() else st.Style.create() end
+      let style = if chosen and focused then th.selected() elseif chosen then st.Style.create().bold() else st.Style.create() end
       if chosen then
         screen.fill(area.x, area.y + 1 + row, total, 1, " ", style)
       end

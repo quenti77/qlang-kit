@@ -13,6 +13,7 @@ routes.selected_item()                      -- "GET /" (or none for an empty lis
 import "buffer.q" as b
 import "layout.q" as l
 import "style.q" as st
+import "theme.q" as th
 import "text.q" as tx
 
 --" Draws a vertical scroll bar of `height` rows at column `x` when `count` lines do not fit. --"
@@ -148,7 +149,7 @@ impl List
         break
       end
       let chosen = index == self.selected
-      let style = if chosen and focused then st.Style.create().reverse() elseif chosen then st.Style.create().bold() else st.Style.create() end
+      let style = if chosen and focused then th.selected() elseif chosen then st.Style.create().bold() else st.Style.create() end
       let prefix = if chosen then self.marker else "  " end
       screen.put(area.x, area.y + row, tx.fit(prefix + self.items[index], width, "left"), style)
     end

@@ -20,9 +20,11 @@ import "../tui/block.q" as bk
 import "../tui/buffer.q" as b
 import "../tui/help.q" as hp
 import "../tui/layout.q" as l
+import "../tui/keys.q" as k
 import "../tui/list.q" as li
 import "../tui/style.q" as st
 import "../tui/text.q" as tx
+import "../tui/theme.q" as th
 import "parse.q" as ps
 
 --" Where things come from: the files to watch, how to read one, how to run `qlang test`, the time. --"
@@ -201,13 +203,15 @@ impl ap.Program for TestRunner
       end
       return
     end
+    if k.quit_pressed(ev) then
+      ctx.quit()
+      return
+    end
     if ev.kind != "key" or ev.ctrl or ev.alt then
       self.cases.handle(ev)
       return
     end
-    if ev.key == "q" then
-      ctx.quit()
-    elseif ev.key == "r" and not self.running then
+    if ev.key == "r" and not self.running then
       self.args = ["test"]
       self.running = true
       ctx.after("go", 10)
@@ -238,11 +242,11 @@ impl ap.Program for TestRunner
 
   public fun view(self, screen: b.Buffer, area: l.Rect) -> array<int>
     let rows = area.split_column([l.Size.fixed(1), l.Size.fill(1), l.Size.fixed(1)], 0)
-    let green = st.Style.create().fg(st.Color.ansi(2)).bold()
-    let red = st.Style.create().fg(st.Color.ansi(1)).bold()
+    let green = th.ok().bold()
+    let red = th.error().bold()
     let x = rows[0].x + 1
     if self.running then
-      screen.put(x, rows[0].y, "running...", st.Style.create().fg(st.Color.ansi(3)).bold())
+      screen.put(x, rows[0].y, "running...", th.warn().bold())
       x += 12
     end
     let passed = "✓ {self.report.passed} passed"

@@ -19,12 +19,14 @@ import "../tui/block.q" as bk
 import "../tui/buffer.q" as b
 import "../tui/help.q" as hp
 import "../tui/input.q" as inp
+import "../tui/keys.q" as k
 import "../tui/layout.q" as l
 import "../tui/list.q" as li
 import "../tui/modal.q" as md
 import "../tui/style.q" as st
 import "../tui/table.q" as tb
 import "../tui/tabs.q" as ts
+import "../tui/theme.q" as th
 import "../tui/text.q" as tx
 import "logs.q" as lg
 import "prom.q" as pm
@@ -202,7 +204,7 @@ end
 fun draw_overview(d: Dashboard, screen: b.Buffer, area: l.Rect)
   let inside = bk.Block.create().rounded().title("Overview").render(screen, area)
   let ok = d.health == "up"
-  let dot = st.Style.create().fg(st.Color.ansi(if ok then 2 else 1 end)).bold()
+  let dot = (if ok then th.ok() else th.error() end).bold()
   screen.put(inside.x + 1, inside.y, "●", dot)
   screen.put(inside.x + 3, inside.y, "app is " + d.health, st.Style.create().bold())
   let requests = total_requests(d)
@@ -222,7 +224,7 @@ fun draw_overview(d: Dashboard, screen: b.Buffer, area: l.Rect)
   while at >= 0 and shown < 5 do
     let e = d.entries[at]
     if lg.level_rank(e.level) >= 3 then
-      screen.put(inside.x + 1, inside.y + 12 + shown, tx.truncate(line_of(e), inside.w - 2), st.Style.create().fg(st.Color.ansi(1)))
+      screen.put(inside.x + 1, inside.y + 12 + shown, tx.truncate(line_of(e), inside.w - 2), th.error())
       shown += 1
     end
     at -= 1
@@ -230,7 +232,7 @@ fun draw_overview(d: Dashboard, screen: b.Buffer, area: l.Rect)
   let row = inside.y + 18
   for p in d.problems do
     if row < inside.bottom() then
-      screen.put(inside.x + 1, row, tx.truncate("! " + p, inside.w - 2), st.Style.create().fg(st.Color.ansi(3)))
+      screen.put(inside.x + 1, row, tx.truncate("! " + p, inside.w - 2), th.warn())
       row += 1
     end
   end
@@ -263,11 +265,11 @@ impl ap.Program for Dashboard
       end
       return
     end
+    if k.quit_pressed(ev) then
+      ctx.quit()
+      return
+    end
     if ev.kind == "key" and not ev.ctrl and not ev.alt then
-      if ev.key == "q" then
-        ctx.quit()
-        return
-      end
       if ev.key == "r" then
         refresh(self)
         return
