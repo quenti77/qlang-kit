@@ -1,0 +1,10 @@
+-- Test data for the `{{table}}` table.
+import "@std/web/seed.q" as seed
+
+fun {{name}}_factory() -> seed.Factory
+  let factory = seed.Factory.table("{{table}}")
+  factory.field("name", fun(n: int) -> Json Json.string("{{Name}} {n}") end)
+  factory
+end
+
+export {{name}}_factory

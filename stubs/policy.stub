@@ -1,0 +1,10 @@
+-- {{Name}} policy: who can do what. Replace `int` (the user) and `Json` (the item) by your own types.
+import "@std/web/policy.q" as policy
+
+fun {{name}}_policy() -> policy.Policy<int, Json>
+  let rules = policy.Policy<int, Json>.create()
+  rules.allow("view", fun(user: int, item: Json) -> bool true end)
+  rules
+end
+
+export {{name}}_policy

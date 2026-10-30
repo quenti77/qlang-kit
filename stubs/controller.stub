@@ -1,0 +1,12 @@
+-- {{Name}} controller: a function with a route annotation is a route.
+import "@std/web/app.q" as web
+
+#[web.Get("/{{route}}")]
+fun {{name}}_index() -> string
+  "{{Name}} list"
+end
+
+#[web.Get("/{{route}}/:id")]
+fun {{name}}_show(#[web.Path] id: int) -> string
+  "{{Name}} {id}"
+end
