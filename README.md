@@ -27,6 +27,11 @@ was given, the defaults, or says which answer is missing). The questions are in 
 confirm, select, multi-select and autocomplete, with rules (`required`, `min_length`, `matches`...); a command
 asks them through a `Session`, which also takes answers from the command line and works without a terminal.
 
+`bin/kit test` is a test runner that **watches** your `.q` files and runs `qlang test` again when one changes: every test
+with its verdict, and for a failure the message and the source around the line (`r` run all, `Enter` run the selected
+test, `w` watching, `f` only failures). It starts `qlang`, so it runs with `--allow-process` (the `bin/kit` script
+does that, and only for `test`). `bin/kit` dispatches the other commands too.
+
 `dashboard` shows a running app: health, routes (from `/openapi.json`), requests per route with p50/p95 (from
 `/metrics`) and its JSON log (`qlang serve --log-format json`), with the `N+1?` warnings of `--dev`.
 

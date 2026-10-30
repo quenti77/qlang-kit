@@ -16,7 +16,7 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/quenti77/qlang/main/install.sh | sh
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
       - run: qlang --version
-      - run: qlang test
+      - run: qlang test --allow-process
       - name: The code is laid out (qlang fmt)
         run: qlang fmt --check
       - name: The built-in stubs are embedded

@@ -1,0 +1,9 @@
+#!/bin/sh
+# kit: the command line tool of the qlang framework. `kit test` needs to start `qlang`, so it is the only command
+# that asks for the permission to start programs; the others run without it.
+here=$(cd "$(dirname "$0")/.." && pwd)
+if [ "${1:-}" = "test" ]; then
+  shift
+  exec qlang run --allow-process "$here/watch.q" -- "$@"
+fi
+exec qlang run "$here/main.q" -- "$@"
