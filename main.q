@@ -11,17 +11,19 @@ qlang run main.q -- dashboard --url http://localhost:8000 --log app.log
 | `make` | code generators: `make controller Post`, `make migration create_posts_table`... |
 | `wizard` | `make` as a full screen: pick, name, preview the files, write |
 | `test` | the test runner, watching: run it with `bin/kit test` |
+| `db` | browse a database (tables, rows, structure, SQL, migrations) |
 | `dashboard` | a live terminal view of a running app (routes, requests, logs) |
 | `help` | this list |
 --"
 import "dash/app.q" as dash
 import "make/make.q" as mk
 import "prompt/rules.q" as rules
+import "dbx/app.q" as dbx
 import "wizard/app.q" as wiz
 import "prompt/session.q" as sess
 
 fun usage() -> string
-  "qlang-kit 0.1.0\n\nusage: kit <command> [options]\n\ncommands:\n  make [<kind> <Name>] [--dry-run] [--force] [--no-register] [--no-test] [--no-interaction]   write a controller, model, migration...\n  make --list | --publish-stubs        the kinds | copy the stubs to stubs/ to change them\n  wizard                               make as a full screen, with a preview of the files\n  test                                 the test runner: watches the files, shows failures with their source (bin/kit test)\n  dashboard [--url URL] [--log FILE]   live view of a running app (default URL http://localhost:8000)\n  help                                 this list\n"
+  "qlang-kit 0.1.0\n\nusage: kit <command> [options]\n\ncommands:\n  make [<kind> <Name>] [--dry-run] [--force] [--no-register] [--no-test] [--no-interaction]   write a controller, model, migration...\n  make --list | --publish-stubs        the kinds | copy the stubs to stubs/ to change them\n  wizard                               make as a full screen, with a preview of the files\n  test                                 the test runner: watches the files, shows failures with their source (bin/kit test)\n  db [--url URL] [--write]             browse a database: tables, rows, structure, SQL, migrations (read only by default)\n  dashboard [--url URL] [--log FILE]   live view of a running app (default URL http://localhost:8000)\n  help                                 this list\n"
 end
 
 --" The value after `--name`, or `fallback`. --"
@@ -125,6 +127,19 @@ fun run_command(args: array<string>) -> int
   if args[0] == "test" then
     print("kit test starts qlang, which needs a permission: use `bin/kit test`, or\n  qlang run --allow-process watch.q")
     return 64
+  end
+  if args[0] == "db" then
+    let url = option(args, "--url", env.get("DATABASE_URL") ?? "")
+    if url == "" then
+      print("db: give the database with --url (sqlite://app.db, postgres://...) or DATABASE_URL")
+      return 64
+    end
+    let ran = dbx.run(url, has(args, "--write"))
+    if ran.is_err() then
+      print("db: " + ran.unwrap_err().message)
+      return 1
+    end
+    return 0
   end
   if args[0] == "wizard" then
     let ran = wiz.run()
