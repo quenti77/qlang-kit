@@ -22,6 +22,11 @@ qlang run ../qlang-kit/main.q -- make migration create_posts_table --dry-run
 qlang run ../qlang-kit/main.q -- make --publish-stubs          # copy the stubs to stubs/ to change them
 ```
 
+Without arguments `kit make` asks what to make and how to call it (`--no-interaction` never asks: it uses what
+was given, the defaults, or says which answer is missing). The questions are in `prompt/`: text, password,
+confirm, select, multi-select and autocomplete, with rules (`required`, `min_length`, `matches`...); a command
+asks them through a `Session`, which also takes answers from the command line and works without a terminal.
+
 `dashboard` shows a running app: health, routes (from `/openapi.json`), requests per route with p50/p95 (from
 `/metrics`) and its JSON log (`qlang serve --log-format json`), with the `N+1?` warnings of `--dev`.
 

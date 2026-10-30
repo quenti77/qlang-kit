@@ -14,9 +14,11 @@ qlang run main.q -- dashboard --url http://localhost:8000 --log app.log
 --"
 import "dash/app.q" as dash
 import "make/make.q" as mk
+import "prompt/rules.q" as rules
+import "prompt/session.q" as sess
 
 fun usage() -> string
-  "qlang-kit 0.1.0\n\nusage: kit <command> [options]\n\ncommands:\n  make <kind> <Name> [--dry-run] [--force] [--no-register] [--no-test]   write a controller, model, migration...\n  make --list | --publish-stubs        the kinds | copy the stubs to stubs/ to change them\n  dashboard [--url URL] [--log FILE]   live view of a running app (default URL http://localhost:8000)\n  help                                 this list\n"
+  "qlang-kit 0.1.0\n\nusage: kit <command> [options]\n\ncommands:\n  make [<kind> <Name>] [--dry-run] [--force] [--no-register] [--no-test] [--no-interaction]   write a controller, model, migration...\n  make --list | --publish-stubs        the kinds | copy the stubs to stubs/ to change them\n  dashboard [--url URL] [--log FILE]   live view of a running app (default URL http://localhost:8000)\n  help                                 this list\n"
 end
 
 --" The value after `--name`, or `fallback`. --"
@@ -65,12 +67,33 @@ fun make_command(args: array<string>) -> int
     return 0
   end
   let words = args.slice(1, args.len()).filter(fun(a: string) -> bool not a.starts_with("--") end)
-  if words.len() != 2 then
-    print("usage: kit make <kind> <Name>   (kit make --list for the kinds)")
-    return 64
+  let answers: map<string, string> = {}
+  if words.len() > 0 then
+    answers["kind"] = words[0]
+  end
+  if words.len() > 1 then
+    answers["name"] = words[1]
+  end
+  let ask = if has(args, "--no-interaction") then sess.Session.silent(answers) else sess.Session.create(answers) end
+  let kind = ask.suggest("kind", "What do you want to make?", mk.kinds(), true, "")
+  if kind.is_err() then
+    print("make: " + kind.unwrap_err().message)
+    return if kind.unwrap_err().message == "cancelled" then 130 else 64 end
+  end
+  let name = ask.text("name", "Name of the " + kind.unwrap(), "", [rules.required()])
+  if name.is_err() then
+    print("make: " + name.unwrap_err().message)
+    return if name.unwrap_err().message == "cancelled" then 130 else 64 end
   end
   let options = mk.Options { dry_run: has(args, "--dry-run"), force: has(args, "--force"), register: not has(args, "--no-register"), with_test: not has(args, "--no-test"), now: time.now() }
-  let planned = mk.plan(words[0], words[1], files, options)
+  let planned = mk.plan(kind.unwrap(), name.unwrap(), files, options)
+  if planned.is_err() and planned.unwrap_err().message.contains("--force") and ask.interactive then
+    let again = ask.confirm("force", planned.unwrap_err().message.split(" (")[0] + ". Replace it?", false)
+    if again.is_ok() and again.unwrap() then
+      options.force = true
+      planned = mk.plan(kind.unwrap(), name.unwrap(), files, options)
+    end
+  end
   if planned.is_err() then
     print("make: " + planned.unwrap_err().message)
     return 1
