@@ -19,3 +19,10 @@ jobs:
       - run: qlang test
       - name: The code is laid out (qlang fmt)
         run: qlang fmt --check
+      - name: The built-in stubs are embedded
+        run: |
+          python3 scripts/embed_stubs.py
+          qlang fmt make/builtin.q
+          git diff --exit-code make/builtin.q
+      - name: What `kit make` writes is in order (fmt, check, tests)
+        run: scripts/check_generated.sh

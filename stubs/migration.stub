@@ -1,0 +1,12 @@
+-- Creates the `{{table}}` table.
+import "@std/web/migrate.q" as mig
+
+fun migration() -> mig.Migration
+  mig.Migration {
+    id: "{{id}}",
+    up: ["CREATE TABLE {{table}} (id INTEGER PRIMARY KEY, name TEXT NOT NULL)"],
+    down: ["DROP TABLE {{table}}"],
+  }
+end
+
+export migration

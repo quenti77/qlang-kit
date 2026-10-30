@@ -1,0 +1,8 @@
+-- `{{kebab}}`: a command of the tool.
+import "@std/cli.q" as cli
+
+#[cli.Command("{{kebab}}", "Says what {{kebab}} does")]
+fun {{name}}(console: cli.Console) -> int
+  console.line("{{kebab}}")
+  0
+end

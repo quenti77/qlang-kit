@@ -1,0 +1,8 @@
+-- {{Name}} resource: the fields an API shows.
+import "@std/web/resource.q" as res
+
+fun {{name}}_resource() -> res.Resource
+  res.Resource.only(["id", "name"])
+end
+
+export {{name}}_resource

@@ -14,6 +14,14 @@ qlang run main.q -- dashboard --url http://localhost:8000 --log app.log
 qlang run examples/demo.q
 ```
 
+`make` writes code from stubs (`qlang run main.q -- make --list` for the kinds):
+
+```
+qlang run ../qlang-kit/main.q -- make controller BlogPost      # controllers/blog_posts.q + its test, registered in app.q
+qlang run ../qlang-kit/main.q -- make migration create_posts_table --dry-run
+qlang run ../qlang-kit/main.q -- make --publish-stubs          # copy the stubs to stubs/ to change them
+```
+
 `dashboard` shows a running app: health, routes (from `/openapi.json`), requests per route with p50/p95 (from
 `/metrics`) and its JSON log (`qlang serve --log-format json`), with the `N+1?` warnings of `--dev`.
 

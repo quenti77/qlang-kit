@@ -1,0 +1,11 @@
+-- Tests of the {{Name}} controller.
+import "../app.q" as site
+import "@std/web/testing.q" as testing
+
+fun test_{{name}}_index_answers()
+  testing.Client.new(site.build()).get("/{{route}}").expect_status(200).expect_body_contains("{{Name}}")
+end
+
+fun test_{{name}}_show_answers()
+  testing.Client.new(site.build()).get("/{{route}}/1").expect_status(200)
+end

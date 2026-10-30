@@ -1,0 +1,17 @@
+-- {{Name}}: a row of the `{{table}}` table, and the queries that read it.
+import "@std/web/query.q" as q
+
+struct {{Name}}
+  public id: int
+  public name: string
+end
+
+fun all_{{names}}(db: Db) -> Result<array<{{Name}}>, Error>
+  q.Query.table("{{table}}").order_by("id", "asc").all_as<{{Name}}>(db)
+end
+
+fun find_{{name}}(db: Db, id: int) -> Result<{{Name}}?, Error>
+  q.Query.table("{{table}}").where("id", "=", id).first_as<{{Name}}>(db)
+end
+
+export {{Name}}, all_{{names}}, find_{{name}}

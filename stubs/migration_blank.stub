@@ -1,0 +1,8 @@
+-- {{Name}}: write the statements that change the schema, and the ones that undo them.
+import "@std/web/migrate.q" as mig
+
+fun migration() -> mig.Migration
+  mig.Migration { id: "{{id}}", up: [], down: [] }
+end
+
+export migration

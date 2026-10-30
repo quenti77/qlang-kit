@@ -1,0 +1,12 @@
+-- {{Name}}: work done later by a queue worker.
+-- Register it with `queue.handle<{{Name}}>(handle_{{name}})`, push it with `queue.push({{Name}} { id: 1 })`.
+struct {{Name}}
+  public id: int
+end
+
+--" Does the job: `none` when it is done, a text saying why it failed (it is tried again later). --"
+fun handle_{{name}}(job: {{Name}}) -> string?
+  none
+end
+
+export {{Name}}, handle_{{name}}
