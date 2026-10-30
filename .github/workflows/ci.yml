@@ -26,3 +26,5 @@ jobs:
           git diff --exit-code make/builtin.q
       - name: What `kit make` writes is in order (fmt, check, tests)
         run: scripts/check_generated.sh
+      - name: The installer and the launcher
+        run: scripts/test_install.sh

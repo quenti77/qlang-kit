@@ -1,0 +1,89 @@
+#!/bin/sh
+# kit: the command line tool of the qlang framework (https://github.com/quenti77/qlang-kit).
+#
+# This is the launcher that `install.sh` puts on your PATH. Several versions of kit can be installed side by side
+# (in $KIT_HOME/versions); this chooses which one runs:
+#   1. $KIT_VERSION, if set;
+#   2. the version written in the nearest `.kit-version` file, from this folder upwards (`kit use 0.1.0`);
+#   3. the latest one installed.
+#
+#   kit versions         the versions installed
+#   kit use X            use version X in this folder (writes .kit-version)
+#   kit install X        install version X (more than one can live together)
+#   kit update           install the latest release
+#   kit <anything else>  runs it with the chosen version
+set -eu
+
+home="${KIT_HOME:-$HOME/.local/share/kit}"
+install_url="${KIT_INSTALL_URL:-https://raw.githubusercontent.com/quenti77/qlang-kit/main/install.sh}"
+
+say() { printf '%s\n' "$*"; }
+fail() { printf 'kit: %s\n' "$*" >&2; exit 1; }
+
+# the nearest .kit-version, from the current folder upwards
+pinned_version() {
+  d=$(pwd)
+  while :; do
+    if [ -f "$d/.kit-version" ]; then
+      tr -d ' \t\r\n' < "$d/.kit-version"
+      return 0
+    fi
+    [ "$d" = "/" ] && return 1
+    d=$(dirname "$d")
+  done
+}
+
+latest_installed() {
+  if [ -f "$home/current" ]; then
+    cat "$home/current"
+  fi
+}
+
+fetch_installer() {
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsSL "$install_url"
+  else
+    wget -qO- "$install_url"
+  fi
+}
+
+case "${1:-}" in
+  versions)
+    [ -d "$home/versions" ] || fail "no version installed (curl -fsSL $install_url | sh)"
+    current=$(latest_installed)
+    for v in $(ls "$home/versions"); do
+      if [ "$v" = "$current" ]; then say "$v (latest installed)"; else say "$v"; fi
+    done
+    exit 0
+    ;;
+  use)
+    [ -n "${2:-}" ] || fail "usage: kit use <version>"
+    v="${2#v}"
+    [ -d "$home/versions/$v" ] || fail "version $v is not installed (kit install $v)"
+    printf '%s\n' "$v" > .kit-version
+    say "this folder now uses kit $v (.kit-version)"
+    exit 0
+    ;;
+  install)
+    [ -n "${2:-}" ] || fail "usage: kit install <version>"
+    fetch_installer | sh -s -- --version "${2#v}" --keep-current
+    exit 0
+    ;;
+  update)
+    fetch_installer | sh
+    exit 0
+    ;;
+esac
+
+version="${KIT_VERSION:-}"
+if [ -z "$version" ]; then
+  version=$(pinned_version || true)
+fi
+if [ -z "$version" ]; then
+  version=$(latest_installed)
+fi
+[ -n "$version" ] || fail "no version installed (curl -fsSL $install_url | sh)"
+version="${version#v}"
+entry="$home/versions/$version/bin/kit"
+[ -x "$entry" ] || fail "version $version is not installed (kit install $version)"
+exec "$entry" "$@"
