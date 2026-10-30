@@ -7,6 +7,28 @@ The command line tool of the [qlang](https://github.com/quenti77/qlang) web fram
 - **a full terminal interface (TUI)**: panels, forms, tables, logs, a live view of routes, queries and the
   queue, built on the terminal primitives of the language.
 
+## Install
+
+```
+curl -fsSL https://raw.githubusercontent.com/quenti77/qlang-kit/main/install.sh | sh
+```
+
+kit is written in qlang: it needs the [`qlang`](https://github.com/quenti77/qlang) command. The installer checks the
+release's checksum, keeps each version in `~/.local/share/kit/versions` and puts a `kit` launcher in `~/.local/bin`.
+
+```
+kit version               kit versions              kit update
+kit install 0.1.0         kit use 0.1.0             # pins this folder (writes .kit-version)
+```
+
+**In a project**, so that everybody who works on it runs the same kit: `kit init` adds kit to the dependencies of
+`qlang.toml` (the version is pinned there and in `qlang.lock`) and writes `kit.q`:
+
+```
+kit init && qlang install
+qlang run --allow-process kit.q -- make controller Post
+```
+
 ## Try it
 
 ```
