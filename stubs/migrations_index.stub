@@ -1,0 +1,9 @@
+-- The migrations of the application. `kit make migration` adds each new one here.
+import "@std/web/migrate.q" as mig
+
+fun all() -> array<mig.Migration>
+  [
+  ]
+end
+
+export all
