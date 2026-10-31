@@ -4,7 +4,7 @@ The version of kit. It must be the one of `qlang.toml` and of the tag of the rel
 --"
 
 fun version() -> string
-  "0.1.0"
+  "0.2.0"
 end
 
 export version
