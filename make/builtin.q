@@ -104,6 +104,17 @@ fun builtin_stubs() -> map<string, string>
     "",
     "export migration",
   ].join("\n") + "\n"
+  stubs["migrations_index"] = [
+    "-- The migrations of the application. `kit make migration` adds each new one here.",
+    "import \"@std/web/migrate.q\" as mig",
+    "",
+    "fun all() -> array<mig.Migration>",
+    "  [",
+    "  ]",
+    "end",
+    "",
+    "export all",
+  ].join("\n") + "\n"
   stubs["model"] = [
     "-- \{\{Name\}\}: a row of the `\{\{table\}\}` table, and the queries that read it.",
     "import \"@std/web/query.q\" as q",
@@ -134,6 +145,17 @@ fun builtin_stubs() -> map<string, string>
     "end",
     "",
     "export \{\{name\}\}_policy",
+  ].join("\n") + "\n"
+  stubs["provider"] = [
+    "-- \{\{Name\}\}: a service of the application. The container finds the function by the type it returns.",
+    "struct \{\{Name\}\}",
+    "  public name: string",
+    "end",
+    "",
+    "#[used]",
+    "fun make_\{\{name\}\}() -> \{\{Name\}\}",
+    "  \{\{Name\}\} \{ name: \"\{\{name\}\}\" \}",
+    "end",
   ].join("\n") + "\n"
   stubs["resource"] = [
     "-- \{\{Name\}\} resource: the fields an API shows.",

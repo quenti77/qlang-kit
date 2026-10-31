@@ -2,7 +2,7 @@
 
 The command line tool of the [qlang](https://github.com/quenti77/qlang) web framework, written in qlang:
 
-- **`make`**: generators for controllers, models, migrations, tests, providers... from stubs you can override;
+- **`make`**: generators for controllers, models, migrations, providers, tests... (a controller or a provider is registered in `app.q`, a migration in `migrations.q`) from stubs you can override;
 - **project commands**: the ones of `qlang-std` (`db:migrate`, `db:seed`...) behind one entry point;
 - **a full terminal interface (TUI)**: panels, forms, tables, logs, a live view of routes, queries and the
   queue, built on the terminal primitives of the language.
@@ -40,7 +40,8 @@ qlang run examples/demo.q
 
 ```
 qlang run ../qlang-kit/main.q -- make controller BlogPost      # controllers/blog_posts.q + its test, registered in app.q
-qlang run ../qlang-kit/main.q -- make migration create_posts_table --dry-run
+qlang run ../qlang-kit/main.q -- make migration create_posts_table --dry-run   # + listed in migrations.q
+qlang run ../qlang-kit/main.q -- make provider Mailer           # providers/mailer.q, registered in app.q
 qlang run ../qlang-kit/main.q -- make --publish-stubs          # copy the stubs to stubs/ to change them
 ```
 

@@ -1,0 +1,9 @@
+-- {{Name}}: a service of the application. The container finds the function by the type it returns.
+struct {{Name}}
+  public name: string
+end
+
+#[used]
+fun make_{{name}}() -> {{Name}}
+  {{Name}} { name: "{{name}}" }
+end

@@ -1,7 +1,8 @@
 --" # make: code generators
 
 `kit make controller Post` writes `controllers/posts.q` (and its test), registers it in `app.q`, and says what it
-did. Every generator works from a **stub**, a text with `\{\{placeholders\}\}`; a project can change any of them
+did. A provider is registered in `app.q` the same way, a migration in `migrations.q` (`all()` gives them to the
+migrator). Every generator works from a **stub**, a text with `\{\{placeholders\}\}`; a project can change any of them
 by putting its own `stubs/<kind>.stub` next to its code (`kit make --publish-stubs` copies the built-in ones
 there to start from).
 
@@ -9,7 +10,8 @@ there to start from).
 | --- | --- | --- |
 | `controller` | `controllers/<names>.q` + `tests/<names>_test.q` | registered in `app.q` |
 | `model` | `models/<name>.q` | a struct and the queries that read it |
-| `migration` | `migrations/<date>_<name>.q` | `create_users` makes the table; any other name is blank |
+| `migration` | `migrations/<date>_<name>.q` | `create_users` makes the table; any other name is blank; listed in `migrations.q` |
+| `provider` | `providers/<name>.q` | a service and the function that makes it; registered in `app.q` |
 | `job` | `jobs/<name>.q` | a struct and its handler |
 | `middleware` | `middleware/<name>.q` | |
 | `policy` | `policies/<name>.q` | |
@@ -78,7 +80,8 @@ struct Options
   public dry_run: bool = false
   --" Replace a file that is already there. --"
   public force: bool = false
-  --" Add the controller to `app.q`. --"
+  --" Register what is made where the application looks for it: a controller or a provider in `app.q`, a migration in
+  `migrations.q`. --"
   public register: bool = true
   --" Also write the test of a controller. --"
   public with_test: bool = true
@@ -96,7 +99,7 @@ end
 
 --" The kinds of file `make` knows. --"
 fun kinds() -> array<string>
-  ["controller", "model", "migration", "job", "middleware", "policy", "resource", "factory", "seeder", "command", "test"]
+  ["controller", "model", "migration", "provider", "job", "middleware", "policy", "resource", "factory", "seeder", "command", "test"]
 end
 
 fun pad2(n: int) -> string
@@ -172,6 +175,8 @@ fun path_of(kind: string, vars: map<string, string>) -> string
     "migrations/" + (vars["id"] ?? "") + ".q"
   elseif kind == "test" then
     "tests/" + names + "_test.q"
+  elseif kind == "provider" then
+    "providers/" + name + ".q"
   elseif kind == "model" then
     "models/" + name + ".q"
   elseif kind == "middleware" then
@@ -239,6 +244,50 @@ fun register_controller(app_source: string, path: string, alias: string) -> stri
   rebuilt.join("\n")
 end
 
+-- the text of a new `migrations.q`: the project's own stub or the built-in one
+fun index_stub(files: Files) -> string
+  let stub = stub_of("migrations_index", files)
+  if stub.is_ok() then
+    stub.unwrap()
+  else
+    ""
+  end
+end
+
+--" Adds a migration module to `migrations.q`: its import, and its `migration()` in the list of `all()`. Gives the new
+text, or `none` when the file does not look like the one `kit make migration` writes. --"
+fun register_migration(index_source: string, path: string, alias: string) -> string?
+  let module_line = "import \"" + path + "\" as " + alias
+  if index_source.contains(module_line) then
+    return index_source
+  end
+  let lines = index_source.split("\n")
+  let close = -1
+  let last_import = -1
+  for i in 0..lines.len() do
+    if lines[i].trim() == "]" then
+      close = i
+    end
+    if lines[i].starts_with("import ") then
+      last_import = i
+    end
+  end
+  if close < 0 or last_import < 0 then
+    return none
+  end
+  let rebuilt: array<string> = []
+  for i in 0..lines.len() do
+    if i == close then
+      rebuilt.push("    " + alias + ".migration(),")
+    end
+    rebuilt.push(lines[i])
+    if i == last_import then
+      rebuilt.push(module_line)
+    end
+  end
+  rebuilt.join("\n")
+end
+
 --" Works out what `kit make <kind> <name>` would do, without touching any file. --"
 fun plan(kind: string, name: string, files: Files, options: Options) -> Result<array<Change>, Error>
   if not kinds().contains(kind) then
@@ -278,14 +327,27 @@ fun plan(kind: string, name: string, files: Files, options: Options) -> Result<a
     end
     changes.push(test_change.unwrap())
   end
-  if kind == "controller" and options.register then
+  if (kind == "controller" or kind == "provider") and options.register then
     let app = files.read("app.q")
-    let alias = "controllers_" + (vars["names"] ?? "")
+    let alias = (if kind == "provider" then "providers_" else "controllers_" end) + (if kind == "provider" then (vars["name"] ?? "") else (vars["names"] ?? "") end)
     let updated = if app.is_ok() then register_controller(app.unwrap(), path, alias) else none end
     if updated == none then
       changes.push(Change { path: "app.q", content: "", action: "skip", note: "add `import \"" + path + "\" as " + alias + "` and `.concat(Reflect.declared(" + alias + "))` to App.boot yourself" })
     elseif app.unwrap() != updated then
       changes.push(Change { path: "app.q", content: updated, action: "update", note: "registered" })
+    end
+  end
+  if kind == "migration" and options.register then
+    let alias = "m_" + (vars["id"] ?? "")
+    let existing = files.read("migrations.q")
+    let source = if existing.is_ok() then existing.unwrap() else index_stub(files) end
+    let updated = register_migration(source, path, alias)
+    if updated == none then
+      changes.push(Change { path: "migrations.q", content: "", action: "skip", note: "add `import \"" + path + "\" as " + alias + "` and `" + alias + ".migration()` to the list of all() yourself" })
+    elseif existing.is_err() then
+      changes.push(Change { path: "migrations.q", content: updated, action: "create", note: "the list of the migrations" })
+    elseif existing.unwrap() != updated then
+      changes.push(Change { path: "migrations.q", content: updated, action: "update", note: "registered" })
     end
   end
   Result<array<Change>, Error>.Ok(changes)
@@ -323,4 +385,4 @@ fun publish_stubs(files: Files) -> Result<array<string>, Error>
   Result<array<string>, Error>.Ok(done)
 end
 
-export Files, Options, Change, disk_files, memory_files, kinds, timestamp, plan, apply, publish_stubs, register_controller
+export Files, Options, Change, disk_files, memory_files, kinds, timestamp, plan, apply, publish_stubs, register_controller, register_migration

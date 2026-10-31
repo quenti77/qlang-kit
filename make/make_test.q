@@ -28,6 +28,46 @@ fun test_a_controller_comes_with_its_test_and_is_registered()
   assert(changes[2].content.contains(".concat(Reflect.declared(controllers_blog_posts)))"))
 end
 
+fun test_a_provider_is_made_and_registered_like_a_controller()
+  let changes = plan_of("provider", "mailer", project(), m.Options { now: 0 })
+  assert_eq(changes.len(), 2)
+  assert_eq(changes[0].path, "providers/mailer.q")
+  assert(changes[0].content.contains("fun make_mailer() -> Mailer"))
+  assert_eq(changes[1].path, "app.q")
+  assert(changes[1].content.contains("import \"providers/mailer.q\" as providers_mailer"))
+  assert(changes[1].content.contains(".concat(Reflect.declared(providers_mailer)))"))
+end
+
+fun test_a_migration_is_listed_in_migrations_q_which_is_made_when_missing()
+  let first = plan_of("migration", "create_posts_table", project(), m.Options { now: 1767225600000 })
+  assert_eq(first.len(), 2)
+  assert_eq(first[0].path, "migrations/20260101000000_create_posts_table.q")
+  assert_eq(first[1].path, "migrations.q")
+  assert_eq(first[1].action, "create")
+  assert(first[1].content.contains("import \"migrations/20260101000000_create_posts_table.q\" as m_20260101000000_create_posts_table"))
+  assert(first[1].content.contains("    m_20260101000000_create_posts_table.migration(),\n  ]"))
+  -- the next one is added to the file that now exists
+  let store = project()
+  store["migrations.q"] = first[1].content
+  let second = plan_of("migration", "add_age_to_users", store, m.Options { now: 1767312000000 })
+  assert_eq(second[1].action, "update")
+  assert(second[1].content.contains("m_20260102000000_add_age_to_users.migration(),"))
+  assert(second[1].content.contains("m_20260101000000_create_posts_table.migration(),"))
+end
+
+fun test_registering_a_migration_twice_changes_nothing_and_a_strange_index_is_left_alone()
+  let source = "import \"@std/web/migrate.q\" as mig\n\nfun all() -> array<mig.Migration>\n  [\n  ]\nend\n"
+  let once = m.register_migration(source, "migrations/a.q", "m_a") ?? ""
+  assert(once.contains("m_a.migration(),"))
+  assert_eq(m.register_migration(once, "migrations/a.q", "m_a"), once)
+  assert_eq(m.register_migration("fun all() -> int\n  1\nend\n", "migrations/a.q", "m_a"), none)
+  let changes = plan_of("migration", "create_users_table", {"migrations.q": "fun all() -> int\n  1\nend\n"}, m.Options { now: 0 })
+  assert_eq(changes[1].action, "skip")
+  assert(changes[1].note.contains("migrations.q") or changes[1].note.contains("all()"))
+  let off = plan_of("migration", "create_users_table", project(), m.Options { now: 0, register: false })
+  assert_eq(off.len(), 1)
+end
+
 fun test_registering_twice_changes_nothing()
   let once = m.register_controller(app_source(), "controllers/users.q", "controllers_users") ?? ""
   assert(once.contains("controllers_users"))
