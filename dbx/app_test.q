@@ -137,3 +137,10 @@ fun test_pending_migrations_are_the_files_not_in_the_table()
   assert_eq(a.pending(["001_a"], ["migrations/001_a.q", "migrations/002_b.q"]), ["002_b"])
   assert_eq(a.pending([], []), [])
 end
+
+fun test_the_password_of_the_address_is_not_shown()
+  assert_eq(a.shown("postgres://postgres:secret@pg:5432/postgres?sslmode=disable"), "postgres://postgres:***@pg:5432/postgres?sslmode=disable")
+  assert_eq(a.shown("mysql://root:p@ss:w@host/app"), "mysql://root:***@host/app")
+  assert_eq(a.shown("sqlite://app.db"), "sqlite://app.db")
+  assert_eq(a.shown("postgres://user@host/db"), "postgres://user@host/db")
+end
