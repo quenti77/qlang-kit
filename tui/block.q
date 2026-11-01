@@ -131,7 +131,7 @@ impl Block
     let right = area.x + area.w - 1
     let bottom = area.y + area.h - 1
     let across = ""
-    for i in 0..(area.w - 2) do
+    for _i in 0..(area.w - 2) do
       across += g[4]
     end
     screen.put(area.x, area.y, g[0] + across + g[1], self.line)

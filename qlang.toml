@@ -2,3 +2,7 @@
 name = "kit"
 version = "0.2.0"
 main = "main.q"
+
+# the level of each file (see docs/stability.md of qlang): `qlang doc --require-levels` checks that none is missing
+[stability]
+experimental = ["*.q", "**/*.q"]

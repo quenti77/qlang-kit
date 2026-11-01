@@ -42,7 +42,7 @@ end
 fun allocate(total: int, sizes: array<Size>, gap: int) -> array<int>
   let n = sizes.len()
   let lengths: array<int> = []
-  for i in 0..n do
+  for _i in 0..n do
     lengths.push(0)
   end
   if n == 0 then
@@ -170,11 +170,11 @@ impl Rect
       return out
     end
     let sizes_r: array<Size> = []
-    for i in 0..rows do
+    for _i in 0..rows do
       sizes_r.push(Size.fill(1))
     end
     let sizes_c: array<Size> = []
-    for i in 0..cols do
+    for _i in 0..cols do
       sizes_c.push(Size.fill(1))
     end
     for line in self.split_column(sizes_r, 0) do

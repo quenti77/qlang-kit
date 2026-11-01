@@ -42,7 +42,7 @@ end
 
 fun spaces(n: int) -> string
   let out = ""
-  for i in 0..n do
+  for _i in 0..n do
     out += " "
   end
   out

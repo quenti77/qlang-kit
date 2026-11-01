@@ -26,12 +26,12 @@ impl Progress
     let rest = eighths % 8
     let parts = [" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉"]
     let out = ""
-    for i in 0..full do
+    for _i in 0..full do
       out += "█"
     end
     if full < width then
       out += parts[rest]
-      for i in 0..(width - full - 1) do
+      for _i in 0..(width - full - 1) do
         out += " "
       end
     end

@@ -19,6 +19,10 @@ jobs:
       - run: qlang test --allow-process
       - name: The code is laid out (qlang fmt)
         run: qlang fmt --check
+      - name: No unused code, and no function more tangled than today's worst (qlang lint)
+        run: qlang lint --max-complexity 40
+      - name: Every file says its stability level
+        run: qlang doc --require-levels -o /dev/null
       - name: The built-in stubs are embedded
         run: |
           python3 scripts/embed_stubs.py
