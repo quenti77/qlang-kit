@@ -256,7 +256,7 @@ impl ap.Program for Browser
   public fun view(self, screen: b.Buffer, area: l.Rect) -> array<int>
     let rows = area.split_column([l.Size.fixed(1), l.Size.fill(1), l.Size.fixed(1)], 0)
     let mode = if self.write then "read and write" else "read only" end
-    screen.put(rows[0].x + 1, rows[0].y, tx.truncate(self.url + "  ·  " + mode, rows[0].w - 2), st.Style.create().dim())
+    screen.put(rows[0].x + 1, rows[0].y, tx.truncate(shown(self.url) + "  ·  " + mode, rows[0].w - 2), st.Style.create().dim())
     let cols = rows[1].split_row([l.Size.fixed(26), l.Size.fill(1)], 0)
     let edge = fun(id: string) -> st.Style
       if self.focus.has(id) then th.accent() else st.Style.create() end
@@ -294,6 +294,24 @@ impl ap.Program for Browser
   end
 end
 
+--" The address as the screen shows it: `postgres://user:pass@host/db` becomes `postgres://user:***@host/db`, so that the
+password does not end up in a screenshot or a shared terminal. --"
+fun shown(url: string) -> string
+  let halves = url.split("://")
+  if halves.len() != 2 then
+    return url
+  end
+  let at = halves[1].split("@")
+  if at.len() < 2 then
+    return url
+  end
+  let user = at[0].split(":")[0]
+  if user.len() == at[0].len() then
+    return url
+  end
+  halves[0] + "://" + user + ":***@" + at[at.len() - 1]
+end
+
 --" Opens the database at `url` in the terminal. --"
 fun run(url: string, write: bool) -> Result<bool, Error>
   let opened = Db.connect(url)
@@ -307,4 +325,4 @@ fun run(url: string, write: bool) -> Result<bool, Error>
   ap.run_in_terminal(create(opened.unwrap(), url, write, files))
 end
 
-export Browser, create, run, pending
+export Browser, create, run, pending, shown
