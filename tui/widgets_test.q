@@ -64,7 +64,7 @@ fun test_the_spinner_goes_round()
   assert_eq(spin.frame(), "⠋")
   spin.tick()
   assert_eq(spin.frame(), "⠙")
-  for i in 0..9 do
+  for _i in 0..9 do
     spin.tick()
   end
   assert_eq(spin.frame(), "⠋")

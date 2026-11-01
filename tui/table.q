@@ -224,7 +224,7 @@ fun number_key(n: float) -> string
   let whole = (if n < 0.0 then 0.0 - n else n end) as int
   let digits = "{whole}"
   let padded = ""
-  for i in 0..(20 - digits.len()) do
+  for _i in 0..(20 - digits.len()) do
     padded += "0"
   end
   if n < 0.0 then

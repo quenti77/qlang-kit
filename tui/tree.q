@@ -219,7 +219,7 @@ impl Tree
       let n = self.nodes[rows[r]]
       let mark = if n.branch then (if n.open then "▾ " else "▸ " end) else "  " end
       let indent = ""
-      for i in 0..n.depth do
+      for _i in 0..n.depth do
         indent += "  "
       end
       let chosen = r == self.selected

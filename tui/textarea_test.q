@@ -15,7 +15,7 @@ end
 fun test_enter_splits_the_line_at_the_cursor()
   let area = ta.TextArea.create()
   type_text(area, "helloworld")
-  for i in 0..5 do
+  for _i in 0..5 do
     area.handle(key("Left"))
   end
   area.handle(key("Enter"))
@@ -71,7 +71,7 @@ end
 fun test_a_paste_keeps_its_line_breaks()
   let area = ta.TextArea.create()
   area.set("start end")
-  for i in 0..4 do
+  for _i in 0..4 do
     area.handle(key("Left"))
   end
   area.handle(Event { kind: "paste", text: "A\nB\nC" })

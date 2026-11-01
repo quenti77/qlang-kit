@@ -31,7 +31,7 @@ impl Buffer
     let r = if rows < 0 then 0 else rows end
     let chars: array<string> = []
     let styles: array<int> = []
-    for i in 0..(c * r) do
+    for _i in 0..(c * r) do
       chars.push(" ")
       styles.push(0)
     end
@@ -108,7 +108,7 @@ impl Buffer
   --" Fills a rectangle with one character. --"
   public fun fill(self, x: int, y: int, width: int, height: int, ch: string, style: st.Style)
     let line = ""
-    for i in 0..width do
+    for _i in 0..width do
       line += ch
     end
     for row in y..(y + height) do
