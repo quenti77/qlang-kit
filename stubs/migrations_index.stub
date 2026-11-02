@@ -2,8 +2,8 @@
 import "@std/web/migrate.q" as mig
 
 fun all() -> array<mig.Migration>
-  [
-  ]
+    [
+    ]
 end
 
 export all

@@ -2,9 +2,9 @@
 import "@std/web/app.q" as web
 
 fun {{name}}() -> web.Middleware
-  fun(req: Request, next: web.Handler) -> Response
-    next(req)
-  end
+    fun(req: Request, next: web.Handler) -> Response
+        next(req)
+    end
 end
 
 export {{name}}

@@ -10,11 +10,11 @@ bin/kit test                       -- the test runner starts qlang: it needs --a
 import "cli.q" as cli
 
 fun needs_permission() -> int
-  print("kit test starts qlang, which needs a permission: use `bin/kit test`, or\n  qlang run --allow-process watch.q")
-  64
+    print("kit test starts qlang, which needs a permission: use `bin/kit test`, or\n  qlang run --allow-process watch.q")
+    64
 end
 
 let code = cli.run_command(env.args(), needs_permission)
 if code != 0 then
-  exit(code)
+    exit(code)
 end

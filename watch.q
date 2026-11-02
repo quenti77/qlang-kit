@@ -11,6 +11,6 @@ import "runner/app.q" as runner
 
 let ran = runner.run()
 if ran.is_err() then
-  print("test: " + ran.unwrap_err().message)
-  exit(1)
+    print("test: " + ran.unwrap_err().message)
+    exit(1)
 end
