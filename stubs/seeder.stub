@@ -3,12 +3,12 @@ import "@std/web/seed.q" as seed
 import "../factories/{{name}}.q" as factories
 
 fun {{name}}_seeder() -> seed.Seeder
-  seed.Seeder {
-    name: "{{name}}",
-    run: fun(db: Db) -> Result<bool, Error>
-      seed.done(factories.{{name}}_factory().create_many(db, 10))
-    end,
-  }
+    seed.Seeder {
+        name: "{{name}}",
+        run: fun(db: Db) -> Result<bool, Error>
+            seed.done(factories.{{name}}_factory().create_many(db, 10))
+        end,
+    }
 end
 
 export {{name}}_seeder

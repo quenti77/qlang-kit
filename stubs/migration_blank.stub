@@ -2,7 +2,7 @@
 import "@std/web/migrate.q" as mig
 
 fun migration() -> mig.Migration
-  mig.Migration { id: "{{id}}", up: [], down: [] }
+    mig.Migration { id: "{{id}}", up: [], down: [] }
 end
 
 export migration
