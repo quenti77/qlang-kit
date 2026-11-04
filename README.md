@@ -29,6 +29,14 @@ kit init && qlang install
 qlang run --allow-process kit.q -- make controller Post
 ```
 
+## Stability
+
+Each file has a level in `[stability]` of `qlang.toml` (see `docs/stability.md` of qlang). **Stable** (what 1.0 promises: no
+breaking change without a deprecation cycle): the entry point and its sub-commands (`main.q`, `cli.q`, `version.q`), and `make`
+with its generators and stubs (`make/`). **Provisional**: the settings (`kit.json`), the prompts, the test runner, the wizard.
+**Experimental**: the terminal screens built on `Term` (`tui/`), the dashboard and the database browser. The commands, their
+options and their exit codes are the promise; the look of a screen is not.
+
 ## Try it
 
 ```

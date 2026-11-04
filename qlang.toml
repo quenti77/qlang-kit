@@ -5,4 +5,7 @@ main = "main.q"
 
 # the level of each file (see docs/stability.md of qlang): `qlang doc --require-levels` checks that none is missing
 [stability]
-experimental = ["*.q", "**/*.q"]
+# the commands and the generators are what 1.0 promises; the screens (TUI, dashboard, database browser) are not frozen yet
+stable = ["main.q", "cli.q", "version.q", "make/names.q", "make/make.q", "make/project.q", "make/builtin.q"]
+provisional = ["config/config.q", "prompt/*.q", "runner/*.q", "wizard/*.q", "watch.q"]
+experimental = ["tui/*.q", "dash/*.q", "dbx/*.q", "*.q", "**/*.q"]
