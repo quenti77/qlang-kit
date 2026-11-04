@@ -48,7 +48,7 @@ These are the promise of the stable part (see Stability). `kit help` prints the 
 | `kit help`, `kit --help` | | this list |
 
 **Exit codes**: `0` the command did what was asked; `1` it could not (a file that exists without `--force`, an unknown kind, a name that
-is refused, a missing answer with `--no-interaction`, a database that does not open); `78` the settings file (`kit.json`) cannot be read.
+is refused, a missing answer with `--no-interaction`, a database that does not open); `64` the command does not exist; `78` the settings file (`kit.json`) cannot be read.
 The text each command prints on success is not promised, the codes are.
 
 **Windows.** `install.sh` is a POSIX shell script: on Windows, install `qlang` first (`install.ps1` of qlang), then run kit from a
