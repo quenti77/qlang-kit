@@ -29,6 +29,32 @@ kit init && qlang install
 qlang run --allow-process kit.q -- make controller Post
 ```
 
+## Commands, options and exit codes
+
+These are the promise of the stable part (see Stability). `kit help` prints the same list.
+
+| Command | Options | What it does |
+| --- | --- | --- |
+| `kit make [<kind> <Name>]` | `--dry-run` (list the files, write nothing), `--force` (replace files that exist), `--no-register` (do not add the new controller, provider or migration to `app.q` / `migrations.q`), `--no-test` (no test file), `--no-interaction` (never ask: use what was given, the defaults, or say which answer is missing) | writes a controller, model, migration, provider, job, middleware, policy, resource, factory, seeder, command or test from the stubs |
+| `kit make --list` | | prints the kinds |
+| `kit make --publish-stubs` | | copies the stubs to `stubs/` to change them (the ones that exist are kept) |
+| `kit wizard` | | `make` as a full screen, with a preview of the files |
+| `kit init` | `--force` | makes the project depend on kit: pins the version in `qlang.toml` and writes `kit.q` |
+| `kit version` | | the version of kit |
+| `kit config` | | the settings in use (`kit.json` of the project, then `~/.config/kit/kit.json`) |
+| `kit test` | `--filter NAME` is passed to `qlang test` by the runner (`Enter` on a test) | the test runner: watches the `.q` files and runs the tests again when one changes |
+| `kit db` | `--url URL` (or `DATABASE_URL`), `--write` | browses a database; read only unless `--write` |
+| `kit dashboard` | `--url URL` (default `http://localhost:8000`), `--log FILE` | live view of a running app |
+| `kit help`, `kit --help` | | this list |
+
+**Exit codes**: `0` the command did what was asked; `1` it could not (a file that exists without `--force`, an unknown kind, a name that
+is refused, a missing answer with `--no-interaction`, a database that does not open); `78` the settings file (`kit.json`) cannot be read.
+The text each command prints on success is not promised, the codes are.
+
+**Windows.** `install.sh` is a POSIX shell script: on Windows, install `qlang` first (`install.ps1` of qlang), then run kit from a
+clone with `qlang run main.q -- <command>` (or from a project that has `kit` as a dependency: `kit init`). A Windows installer for
+kit itself, tried on a real machine, is still to do.
+
 ## Stability
 
 Each file has a level in `[stability]` of `qlang.toml` (see `docs/stability.md` of qlang). **Stable** (what 1.0 promises: no
