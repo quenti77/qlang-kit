@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.0.0
+
+First stable version. What 1.x promises is the stable part (commands, options, exit codes and the generators); the screens that depend on `Term` stay experimental, the rest is provisional (see Stability in the README).
 
 - **Stability levels.** The entry point and its sub-commands, and `make` with its generators and stubs, are **stable**; the
   settings, the prompts, the test runner and the wizard are **provisional**; the terminal screens (`tui/`), the dashboard and
