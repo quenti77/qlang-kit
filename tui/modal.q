@@ -114,7 +114,7 @@ impl Dialog
         for i in 0..lines.len() do
             screen.put(inside.x + 1, inside.y + i, lines[i], st.Style.create())
         end
-        let x = inside.x + (inside.w - inner_w) div 2
+        let x = inside.x + (inside.w - inner_w) // 2
         for i in 0..self.buttons.len() do
             let text = "[ " + self.buttons[i] + " ]"
             let style = if i == self.chosen then th.selected().bold() else st.Style.create() end

@@ -22,7 +22,7 @@ impl Progress
     public fun bar(ratio: float, width: int) -> string
         let r = if ratio < 0.0 then 0.0 elseif ratio > 1.0 then 1.0 else ratio end
         let eighths = (r * width as float * 8.0) as int
-        let full = eighths div 8
+        let full = eighths // 8
         let rest = eighths % 8
         let parts = [" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉"]
         let out = ""

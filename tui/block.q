@@ -147,7 +147,7 @@ impl Block
             if self.align == "right" then
                 start = right - size
             elseif self.align == "center" then
-                start = area.x + 1 + (area.w - 2 - size) div 2
+                start = area.x + 1 + (area.w - 2 - size) // 2
             end
             screen.put(start, area.y, label, self.title_style)
         end

@@ -58,7 +58,7 @@ fun allocate(total: int, sizes: array<Size>, gap: int) -> array<int>
             weight += s.value
             continue
         end
-        let want = if s.kind == "percent" then room * s.value div 100 else s.value end
+        let want = if s.kind == "percent" then room * s.value // 100 else s.value end
         let got = if want > left then left else want end
         lengths[i] = got
         left -= got
@@ -68,7 +68,7 @@ fun allocate(total: int, sizes: array<Size>, gap: int) -> array<int>
         let last = -1
         for i in 0..n do
             if sizes[i].kind == "fill" then
-                lengths[i] = left * sizes[i].value div weight
+                lengths[i] = left * sizes[i].value // weight
                 given += lengths[i]
                 last = i
             end
@@ -127,7 +127,7 @@ impl Rect
     public fun center(self, w: int, h: int) -> Rect
         let cw = if w > self.w then self.w else w end
         let ch = if h > self.h then self.h else h end
-        Rect.create(self.x + (self.w - cw) div 2, self.y + (self.h - ch) div 2, cw, ch)
+        Rect.create(self.x + (self.w - cw) // 2, self.y + (self.h - ch) // 2, cw, ch)
     end
 
     --" What the two rectangles have in common (an empty rectangle if nothing). --"
