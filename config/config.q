@@ -244,15 +244,15 @@ fun from_json(j: Json) -> Result<Config, Error>
     Result<Config, Error>.Ok(c)
 end
 
---" Reads the files (yours, then the project's on top of them) with `read`, which gives `none` for a file that is not
+--" Reads the files (yours, then the project's on top of them) with `reader`, which gives `none` for a file that is not
 there. A file that is not valid JSON is an error that names it. --"
-fun load(read: fun(string) -> string?, user_file: string, project_file: string) -> Result<Config, Error>
+fun load(reader: fun(string) -> string?, user_file: string, project_file: string) -> Result<Config, Error>
     let merged = Json.object({})
     for path in [user_file, project_file] do
         if path == "" then
             continue
         end
-        let text = read(path)
+        let text = reader(path)
         if text == none then
             continue
         end
