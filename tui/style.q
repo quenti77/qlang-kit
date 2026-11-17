@@ -66,7 +66,7 @@ end
 fun to_rgb(color: int) -> array<int>
     if color >= 257 then
         let v = color - 257
-        return [v div 65536, (v div 256) % 256, v % 256]
+        return [v // 65536, (v // 256) % 256, v % 256]
     end
     let n = color - 1
     if n < 16 then
@@ -78,7 +78,7 @@ fun to_rgb(color: int) -> array<int>
         let level = fun(l: int) -> int
             if l == 0 then 0 else 55 + 40 * l end
         end
-        return [level(c div 36), level((c div 6) % 6), level(c % 6)]
+        return [level(c // 36), level((c // 6) % 6), level(c % 6)]
     end
     let grey = 8 + 10 * (n - 232)
     [grey, grey, grey]
@@ -93,7 +93,7 @@ fun rgb_to_256(r: int, g: int, b: int) -> int
         if r > 248 then
             return 231
         end
-        return 232 + (r - 8) * 24 div 247
+        return 232 + (r - 8) * 24 // 247
     end
     let level = fun(v: int) -> int
         if v < 48 then
@@ -101,7 +101,7 @@ fun rgb_to_256(r: int, g: int, b: int) -> int
         elseif v < 115 then
             1
         else
-            (v - 35) div 40
+            (v - 35) // 40
         end
     end
     16 + 36 * level(r) + 6 * level(g) + level(b)
@@ -166,7 +166,7 @@ impl Style
     end
 
     fun has(self, bit: int) -> bool
-        (self.attrs div bit) % 2 == 1
+        (self.attrs // bit) % 2 == 1
     end
 
     public fun bold(self) -> Style
@@ -201,7 +201,7 @@ impl Style
 
     --" The style a `key` stands for. --"
     public fun of_key(k: int) -> Style
-        Style { fg: (k div 64) div 33554432, bg: (k div 64) % 33554432, attrs: k % 64 }
+        Style { fg: (k // 64) // 33554432, bg: (k // 64) % 33554432, attrs: k % 64 }
     end
 
     --" The escape sequence that gives this style, whatever the one before it was. `depth` is the number

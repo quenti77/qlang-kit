@@ -60,7 +60,7 @@ fun fit(text: string, width: int, align: string) -> string
         return spaces(free) + cut
     end
     if align == "center" then
-        let left = free div 2
+        let left = free // 2
         return spaces(left) + cut + spaces(free - left)
     end
     cut + spaces(free)

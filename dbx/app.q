@@ -170,7 +170,7 @@ fun load_migrations(b: Browser)
 end
 
 fun total_pages(b: Browser) -> int
-    if b.total == 0 then 1 else (b.total + page_size() - 1) div page_size() end
+    if b.total == 0 then 1 else (b.total + page_size() - 1) // page_size() end
 end
 
 fun run_typed(b: Browser)

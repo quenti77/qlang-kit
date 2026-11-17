@@ -108,18 +108,18 @@ end
 
 --" `20261030141500` for a time in milliseconds since 1970 (UTC). --"
 fun timestamp(ms: int) -> string
-    let days = ms div 86400000
-    let secs = (ms % 86400000) div 1000
+    let days = ms // 86400000
+    let secs = (ms % 86400000) // 1000
     let z = days + 719468
-    let era = z div 146097
+    let era = z // 146097
     let doe = z - era * 146097
-    let yoe = (doe - doe div 1460 + doe div 36524 - doe div 146096) div 365
-    let doy = doe - (365 * yoe + yoe div 4 - yoe div 100)
-    let mp = (5 * doy + 2) div 153
-    let day = doy - (153 * mp + 2) div 5 + 1
+    let yoe = (doe - doe // 1460 + doe // 36524 - doe // 146096) // 365
+    let doy = doe - (365 * yoe + yoe // 4 - yoe // 100)
+    let mp = (5 * doy + 2) // 153
+    let day = doy - (153 * mp + 2) // 5 + 1
     let month = if mp < 10 then mp + 3 else mp - 9 end
     let year = yoe + era * 400 + (if month <= 2 then 1 else 0 end)
-    "{year}" + pad2(month) + pad2(day) + pad2(secs div 3600) + pad2((secs % 3600) div 60) + pad2(secs % 60)
+    "{year}" + pad2(month) + pad2(day) + pad2(secs // 3600) + pad2((secs % 3600) // 60) + pad2(secs % 60)
 end
 
 --" Replaces the placeholders; an unknown one is an error (a typo in a stub). --"

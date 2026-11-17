@@ -22,10 +22,10 @@ fun scrollbar(screen: b.Buffer, x: int, y: int, height: int, count: int, offset:
         return
     end
     let track = st.Style.create().dim()
-    let thumb = height * height div count
+    let thumb = height * height // count
     let size = if thumb < 1 then 1 else thumb end
     let room = height - size
-    let top = if count - height == 0 then 0 else offset * room div (count - height) end
+    let top = if count - height == 0 then 0 else offset * room // (count - height) end
     for i in 0..height do
         let inside = i >= top and i < top + size
         screen.put(x, y + i, if inside then "█" else "│" end, if inside then st.Style.create() else track end)
