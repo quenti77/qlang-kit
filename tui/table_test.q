@@ -1,5 +1,6 @@
 import "buffer.q" as b
 import "layout.q" as l
+import "style.q" as st
 import "table.q" as tb
 
 fun key(name: string) -> Event
@@ -62,4 +63,38 @@ fun test_the_view_scrolls_with_the_selection()
     table.render(screen, area, true)
     assert_eq(screen.lines()[1].substring(0, 7), "  2 Ada")
     assert_eq(screen.lines()[2].substring(0, 7), " 33 Bob")
+end
+
+fun test_a_cell_can_have_a_style_of_its_own()
+    let table = users()
+    let red = st.Style.create().fg(st.Color.ansi(1))
+    table.colorize(fun(row: array<string>, column: int) -> st.Style?
+        if column == 1 and row[1] == "Ada" then red else none end
+    end)
+    let screen = b.Buffer.create(12, 4)
+    table.render(screen, l.Rect.create(0, 0, 12, 4), false)
+    assert_eq(screen.style_at(5, 2).fg, red.fg)
+    assert_eq(screen.style_at(5, 3).fg, 0)
+    assert_eq(screen.style_at(1, 2).fg, 0)
+end
+
+fun test_the_selected_row_keeps_the_colour_of_the_cell()
+    let table = users()
+    let red = st.Style.create().fg(st.Color.ansi(1))
+    table.colorize(fun(row: array<string>, column: int) -> st.Style?
+        if column == 1 then red else none end
+    end)
+    let screen = b.Buffer.create(12, 4)
+    table.render(screen, l.Rect.create(0, 0, 12, 4), true)
+    let chosen = screen.style_at(5, 1)
+    assert_eq(chosen.fg, red.fg)
+    assert_eq(chosen.bg, screen.style_at(1, 1).bg)
+end
+
+fun test_a_marker_is_shown_before_the_selected_row_only()
+    let table = users()
+    table.marker("▶ ")
+    let screen = b.Buffer.create(14, 4)
+    table.render(screen, l.Rect.create(0, 0, 14, 4), false)
+    assert_eq(screen.lines(), ["   id name", "▶  10 Cyd", "    2 Ada", "   33 Bob"])
 end
