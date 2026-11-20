@@ -12,6 +12,14 @@ end
 
 --" The columns taken by one character (a string of one character). --"
 fun char_width(ch: string) -> int
+    -- the common case, a printable ASCII character: no need to look at its bytes
+    if ch >= " " and ch <= "~" then
+        return 1
+    end
+    width_of_bytes(ch)
+end
+
+fun width_of_bytes(ch: string) -> int
     let bytes = ch.to_bytes()
     let n = bytes.len()
     let hex = bytes.hex()

@@ -210,7 +210,8 @@ impl Runner
         if wait < 0 then 0 else wait end
     end
 
-    fun fire_timers(self, program: Program)
+    -- runs the timers that are due; says whether one did
+    fun fire_timers(self, program: Program) -> bool
         let now = self.ctx.clock
         let due: array<Timer> = []
         for t in self.ctx.timers do
@@ -228,10 +229,11 @@ impl Runner
                 program.update(Event { kind: "timer", text: t.name }, self.ctx)
             end
         end
+        due.len() > 0
     end
 
     --" Handles one event (and the timers that are due) and draws the result. A `"timeout"` event only lets the
-    timers run. --"
+    timers run: when none was due, nothing is drawn again. --"
     public fun feed(self, program: Program, ev: Event)
         self.ctx.clock = self.clock()
         if ev.kind == "resize" then
@@ -246,8 +248,8 @@ impl Runner
         if ev.kind != "timeout" then
             program.update(ev, self.ctx)
         end
-        self.fire_timers(program)
-        if self.ctx.running then
+        let fired = self.fire_timers(program)
+        if self.ctx.running and (fired or ev.kind != "timeout") then
             self.draw(program)
         end
     end
@@ -263,13 +265,14 @@ impl Runner
 end
 
 --" Runs the program in the terminal: raw mode, the alternate screen, the mouse and pastes reported, and
-everything put back at the end. `Err` if the input or the output is not a terminal. --"
-fun run_in_terminal(program: Program) -> Result<bool, Error>
-    run_in_terminal_with(program, fun(ctx: Context) -> bool true end)
+everything put back at the end. `Err` if the input or the output is not a terminal. With `mouse: false` the mouse
+is not reported: the terminal keeps selecting text itself, and a movement of the pointer does not redraw. --"
+fun run_in_terminal(program: Program, mouse: bool = true) -> Result<bool, Error>
+    run_in_terminal_with(program, fun(ctx: Context) -> bool true end, mouse)
 end
 
 --" Like `run_in_terminal`, after calling `setup` with the context (to start timers before the first event). --"
-fun run_in_terminal_with(program: Program, setup: fun(Context) -> bool) -> Result<bool, Error>
+fun run_in_terminal_with(program: Program, setup: fun(Context) -> bool, mouse: bool = true) -> Result<bool, Error>
     let size = Term.size()
     let next = fun(wait: int) -> Event
         let got = Term.event(wait)
@@ -283,7 +286,9 @@ fun run_in_terminal_with(program: Program, setup: fun(Context) -> bool) -> Resul
     end
     let runner = Runner.create(size.cols, size.rows, Term.colors(), next, out, fun() -> int time.now() end)
     let ran = Term.session(fun() -> bool
-        Term.mouse(true)
+        if mouse then
+            Term.mouse(true)
+        end
         Term.paste(true)
         setup(runner.context())
         runner.run(program)
