@@ -101,4 +101,4 @@ and an unknown setting is a mistake too. `kit config` shows what is in use.
 `dashboard` shows a running app: health, routes (from `/openapi.json`), requests per route with p50/p95 (from
 `/metrics`) and its JSON log (`qlang serve --log-format json`), with the `N+1?` warnings of `--dev`.
 
-Status: the TUI engine (`tui/`) and the dashboard (`dash/`) are in; `make` and the prompts come next. See the roadmap in the issues.
+Status: `make` with its prompts, the TUI engine (`tui/`), the dashboard (`dash/`), the test runner and the database browser are in (see Stability for what each level promises). The roadmap is in the issues.
