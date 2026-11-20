@@ -15,6 +15,15 @@ users.render(screen, area, true)
 users.selected_row()                         -- ["1", "Ada", "ada@example.org"]
 users.sort_by(1, false)                      -- by name, ascending
 ```
+
+A cell can have its own style (`colorize`) and the selected row can start with a mark (`marker`):
+
+```
+users.colorize(fun(row: array<string>, column: int) -> Style?
+    if column == 2 and row[2] == "no" then Theme.error() else none end
+end)
+users.marker("▶ ")
+```
 --"
 import "buffer.q" as b
 import "layout.q" as l
@@ -22,6 +31,7 @@ import "list.q" as li
 import "style.q" as st
 import "theme.q" as th
 import "text.q" as tx
+import "width.q" as w
 
 --" A column: its title, its size and where its text sits. --"
 struct Column
@@ -51,11 +61,26 @@ struct Table
     page: int
     sorted: int
     descending: bool
+    styler: fun(array<string>, int) -> st.Style?
+    symbol: string
 end
 
 impl Table
     public fun create(columns: array<Column>) -> Table
-        Table { columns: columns, rows: [], selected: 0, offset: 0, page: 10, sorted: -1, descending: false }
+        let plain = fun(row: array<string>, column: int) -> st.Style? none end
+        Table { columns: columns, rows: [], selected: 0, offset: 0, page: 10, sorted: -1, descending: false, styler: plain, symbol: "" }
+    end
+
+    --" Gives each cell a style of its own: `style(row, column)` is called when the table is drawn with the cells of the
+    row and the column index, and gives `none` for the style of the row. On the selected row the colour of the text is
+    the one of the cell, on the background of the selection. --"
+    public fun colorize(self, style: fun(array<string>, int) -> st.Style?)
+        self.styler = style
+    end
+
+    --" A mark in front of the selected row (`"▶ "`); the other rows get as many spaces. `""` for none. --"
+    public fun marker(self, symbol: string)
+        self.symbol = symbol
     end
 
     public fun len(self) -> int
@@ -187,9 +212,10 @@ impl Table
         end
         let bar = self.rows.len() > body
         let total = if bar then area.w - 1 else area.w end
-        let widths = self.widths(total)
+        let lead = w.text_width(self.symbol)
+        let widths = self.widths(if total - lead < 0 then 0 else total - lead end)
         let header = st.Style.create().bold().underline()
-        let x = area.x
+        let x = area.x + lead
         for i in 0..self.columns.len() do
             let mark = if i == self.sorted then (if self.descending then " ▼" else " ▲" end) else "" end
             let column = self.columns[i]
@@ -205,11 +231,23 @@ impl Table
             let style = if chosen and focused then th.selected() elseif chosen then st.Style.create().bold() else st.Style.create() end
             if chosen then
                 screen.fill(area.x, area.y + 1 + row, total, 1, " ", style)
+                if lead > 0 then
+                    screen.put(area.x, area.y + 1 + row, self.symbol, style)
+                end
             end
-            let cx = area.x
+            let cx = area.x + lead
             for i in 0..self.columns.len() do
                 let cell = if i < self.rows[index].len() then self.rows[index][i] else "" end
-                screen.put(cx, area.y + 1 + row, tx.fit(cell, widths[i], self.columns[i].where_to), style)
+                let own = self.styler(self.rows[index], i)
+                let used = style
+                if own != none then
+                    if not chosen then
+                        used = own
+                    elseif own.fg != 0 then
+                        used = style.fg(own.fg)
+                    end
+                end
+                screen.put(cx, area.y + 1 + row, tx.fit(cell, widths[i], self.columns[i].where_to), used)
                 cx += widths[i] + 1
             end
         end
