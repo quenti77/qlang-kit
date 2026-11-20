@@ -71,6 +71,16 @@ impl Buffer
         let key = style.key()
         let at = x
         for ch in text.chars() do
+            -- a printable ASCII character takes one cell and cannot be half of a wide one: the common case, kept short
+            if ch >= " " and ch <= "~" and at >= 0 and at < self.cols then
+                let j = y * self.cols + at
+                if self.chars[j] != "" and (at + 1 >= self.cols or self.chars[j + 1] != "") then
+                    self.chars[j] = ch
+                    self.styles[j] = key
+                    at += 1
+                    continue
+                end
+            end
             let width = w.char_width(ch)
             if width == 0 then
                 -- a mark joins the character before it: it is not drawn on its own
@@ -160,6 +170,9 @@ impl Buffer
         if base != none and (base.cols != self.cols or base.rows != self.rows) then
             base = none
         end
+        if base != none and self.chars == base.chars and self.styles == base.styles then
+            return ""
+        end
         if base == none then
             out = "\e[0m\e[2J"
         end
@@ -167,6 +180,14 @@ impl Buffer
         let cx = -1
         let cy = -1
         for y in 0..self.rows do
+            if base != none then
+                -- a row that did not change is not looked at cell by cell
+                let lo = y * self.cols
+                let hi = lo + self.cols
+                if self.chars.slice(lo, hi) == base.chars.slice(lo, hi) and self.styles.slice(lo, hi) == base.styles.slice(lo, hi) then
+                    continue
+                end
+            end
             let x = 0
             while x < self.cols do
                 if self.chars[y * self.cols + x] == "" then

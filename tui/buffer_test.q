@@ -106,3 +106,23 @@ fun test_a_wide_character_moves_the_cursor_by_two()
     after.put(0, 0, "漢字", plain())
     assert_eq(after.diff(before, 256), "\e[1;1H\e[0m漢字")
 end
+
+fun test_a_screen_that_did_not_change_has_an_empty_diff()
+    let a = b.Buffer.create(10, 3)
+    a.put(1, 1, "same", plain())
+    let c = b.Buffer.create(10, 3)
+    c.put(1, 1, "same", plain())
+    assert_eq(c.diff(a, 16), "")
+end
+
+fun test_only_the_row_that_changed_is_written()
+    let a = b.Buffer.create(12, 3)
+    a.put(0, 0, "top line", plain())
+    a.put(0, 2, "bottom line", plain())
+    let c = a.copy()
+    c.put(0, 2, "bottom LINE", plain())
+    let text = c.diff(a, 16)
+    assert(text.contains("\e[3;"))
+    assert(not text.contains("\e[1;"))
+    assert(not text.contains("top"))
+end

@@ -128,3 +128,32 @@ fun test_input_helpers_send_the_matching_events()
     app.wheel(1, 1, true)
     assert(app.contains("n=3"))
 end
+
+struct Views
+    public count: int
+end
+
+impl ap.Program for Views
+    public fun update(self, ev: Event, ctx: ap.Context)
+        if ev.kind == "key" and ev.key == "t" then
+            ctx.every("tick", 1000)
+        end
+    end
+
+    public fun view(self, screen: b.Buffer, area: l.Rect) -> array<int>
+        self.count += 1
+        []
+    end
+end
+
+fun test_a_wait_with_no_timer_due_does_not_draw_again()
+    let program = Views { count: 0 }
+    let app = t.Harness.start(20, 4, program)
+    assert_eq(program.count, 1)
+    app.advance(600)
+    assert_eq(program.count, 1)
+    app.key("t")
+    assert_eq(program.count, 2)
+    app.advance(1000)
+    assert_eq(program.count, 3)
+end
