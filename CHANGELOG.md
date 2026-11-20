@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.1.0
+
+The terminal screens get cheaper and more flexible (needs qlang 1.8 for the step limit that counts between two events). Nothing breaks.
 
 - **`tui/`: a redraw costs much less.** `Buffer.diff` gives `""` at once for a screen that did not change and skips the rows that did not, `put` has a short path for printable ASCII and `char_width` answers it without looking at bytes. A `"timeout"` event with no timer due no longer draws again. For a screen of 120 by 40 that did not change, the work of a redraw falls to about a third; `Buffer.diff` of two equal screens is about 60 times faster.
 - **`run_in_terminal(program, mouse: false)`** (and `run_in_terminal_with`) does not report the mouse: the terminal keeps selecting text itself and a movement of the pointer no longer redraws. `true` stays the default.
